@@ -102,3 +102,7 @@ func (w Worktree) GitHashHistory() (string, error) {
 func (w Worktree) ReadBranchFromGit() (string, error) {
 	return w.Base.ReadBranchFromGit()
 }
+
+func (w Worktree) ReadRemoteFromGit(remote string) (string, error) {
+	return w.Base.ReadRemoteFromGit(remote)
+}

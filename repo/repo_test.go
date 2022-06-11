@@ -1,13 +1,13 @@
 package repo
 
 import (
+	"github.com/sirupsen/logrus"
 	"github.com/smurfless1/pathlib"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
-// const GitLocation string = "https://stash.prod.netflix.net:7006/scm/nrdp/devicetests.git"
-const GitLocation string = "/Users/davidb/work/devicetests/.git"
+const GitLocation string = "/Users/davidb/src/go/gobyexample/.git"
 
 func TestRepo_Clone(t *testing.T) {
 	t.Skip()
@@ -23,4 +23,17 @@ func TestRepo_Clone(t *testing.T) {
 	branch, err = repo.ReadBranchFromGit()
 	assert.Nil(t, err)
 	assert.Equal(t, "master", branch)
+}
+
+func TestRepo_read_remote(t *testing.T) {
+	logrus.SetLevel(logrus.ErrorLevel)
+	root := pathlib.New("~/src/go/gobyexample").ExpandUser()
+	repo := New(GitLocation, root, "master")
+	remote, err := repo.ReadRemoteFromGit("origin")
+	assert.Nil(t, err)
+	assert.Equal(t, "git@github.com:smurfless1/gitlike.git", remote)
+	remote, err = repo.ReadRemoteFromGit("missingremote")
+	assert.Equal(t, "None", remote)
+	assert.NotNil(t, err)
+	assert.Equal(t, "unable to locate a remote with that name", err.Error())
 }

@@ -1,6 +1,8 @@
 package git
 
 import (
+	"bufio"
+	"errors"
 	"fmt"
 	"github.com/sirupsen/logrus"
 	"github.com/smurfless1/fancyrun"
@@ -22,6 +24,7 @@ type RepoLike interface {
 	InitSubmodulesLazy(subdirPaths []pathlib.Path) error
 	CurrentGitHash() (string, error)
 	GitHashHistory() (string, error)
+	ReadRemoteFromGit(string) (string, error)
 }
 
 type RepoBase struct {
@@ -125,4 +128,25 @@ func (r *RepoBase) Reset() error {
 		}
 	}
 	return nil
+}
+
+func (r *RepoBase) ReadRemoteFromGit(remote string) (string, error) {
+	var err error
+	var output string
+	var pwd string
+	pwd, err = os.Getwd()
+	fancyrun.CheckInline(err)
+	_, output, err = fancyrun.FancyRun("git remote -v", pathlib.New(pwd), false)
+	fancyrun.CheckInline(err)
+
+	scanner := bufio.NewScanner(strings.NewReader(output))
+	for scanner.Scan() {
+		line := scanner.Text()
+		words := strings.Fields(line)
+		if words[0] == remote {
+			return words[1], nil
+		}
+	}
+	return "None", errors.New("unable to locate a remote with that name")
+
 }

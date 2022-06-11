@@ -82,6 +82,10 @@ func (r *Repo) GitHashHistory() (string, error) {
 	return r.Base.GitHashHistory()
 }
 
+func (r *Repo) ReadRemoteFromGit(remote string) (string, error) {
+	return r.Base.ReadRemoteFromGit(remote)
+}
+
 func New(remote string, Root pathlib.Path, branch string) Repo {
 	out := Repo{
 		Base: git.RepoBase{
