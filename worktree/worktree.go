@@ -32,7 +32,7 @@ func (w Worktree) Clone() error {
 	if !w.Repo.Exists() {
 		err = w.Repo.Clone()
 		fancyrun.CheckInline(err)
-		err = w.Repo.SetBranch("not_master")
+		err = w.Repo.SetBranch("not-main")
 		fancyrun.CheckInline(err)
 	}
 	err = w.Base.Mkdir()
@@ -42,6 +42,27 @@ func (w Worktree) Clone() error {
 	fancyrun.CheckInline(err)
 
 	logrus.Debug("# Setting worktree branch")
+	err = w.SetBranch(w.Base.Branch)
+	return fancyrun.CheckFinal(err)
+}
+
+func (w Worktree) CreateBranch() error {
+	// this requires more than just the base clone
+	logrus.Debug("Worktree creating a new branch")
+	var err error
+	if !w.Repo.Exists() {
+		err = w.Repo.Clone()
+		fancyrun.CheckInline(err)
+		err = w.Repo.SetBranch("not-main")
+		fancyrun.CheckInline(err)
+	}
+	err = w.Base.Mkdir()
+	fancyrun.CheckInline(err)
+
+	_, _, err = fancyrun.FancyRun(fmt.Sprintf("git worktree add %s -b %s", w.Base.Root.String(), w.Base.Branch), w.Repo.Base.Root, false)
+	fancyrun.CheckInline(err)
+
+	logrus.Debug("# Creating new worktree branch")
 	err = w.SetBranch(w.Base.Branch)
 	return fancyrun.CheckFinal(err)
 }
