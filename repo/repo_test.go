@@ -1,10 +1,11 @@
 package repo
 
 import (
+	"testing"
+
 	"github.com/sirupsen/logrus"
 	"github.com/smurfless1/pathlib"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 const GitLocation string = "/Users/davidb/src/go/gobyexample/.git"

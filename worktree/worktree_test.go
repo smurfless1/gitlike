@@ -1,11 +1,12 @@
 package worktree
 
 import (
+	"testing"
+
 	"github.com/sirupsen/logrus"
 	"github.com/smurfless1/gitlike/repo"
 	"github.com/smurfless1/pathlib"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 var GitLocation string = pathlib.New("~/src/go/fancyrun/.git").ExpandUser().String()

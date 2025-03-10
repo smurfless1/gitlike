@@ -2,11 +2,12 @@ package repo
 
 import (
 	"fmt"
+	"os"
+
 	"github.com/sirupsen/logrus"
 	"github.com/smurfless1/fancyrun"
 	"github.com/smurfless1/gitlike"
 	"github.com/smurfless1/pathlib"
-	"os"
 )
 
 type Repo struct {
@@ -17,7 +18,7 @@ type Repo struct {
 
 func (r *Repo) Clone() error {
 	logrus.Debug("Repo cloning")
-	err := r.Base.Root.MkDir(os.FileMode(int(0755)), true)
+	err := r.Base.Root.MkDir(os.FileMode(int(0o755)), true)
 	if err != nil {
 		return err
 	}
@@ -64,6 +65,10 @@ func (r *Repo) ReadBranchFromGit() (string, error) {
 
 func (r *Repo) SetBranch(value string) error {
 	return r.Base.SetBranch(value)
+}
+
+func (r *Repo) SetBranchFromRef(value string, ref string) error {
+	return r.Base.SetBranchFromRef(value, ref)
 }
 
 func (r *Repo) InitSubmodules() error {

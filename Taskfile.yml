@@ -1,0 +1,109 @@
+version: '3'
+
+# GOSUMDB=off go get -u github.com/smurfless1/pathlib
+
+# git clone --separate-git-dir=$HOME/.tasks_repo ssh://git@sinus.smurfless.com:220/smurfless1/go-tasks.git $HOME/code-tmp
+# rsync -a --ignore-existing ~/code-tmp/ ~/code/
+# alias tgit='git --git-dir=$HOME/.tasks_repo/ --work-tree=$HOME/code'
+# git --git-dir=$HOME/.tasks_repo/ --work-tree=$HOME/code config status.showUntrackedFiles no
+# rm -rf ~/code-tmp/
+
+includes:
+  brew: ~/code/tasks.brew.yml
+
+tasks:
+  go-cli:
+    desc: go-cli
+    dir: '{{ .USER_WORKING_DIR }}'
+    deps:
+      - "brew:homebrew"
+    cmds:
+      - brew install go
+    status:
+      - go version
+
+  goreleaser:
+    desc: goreleaser
+    dir: '{{ .USER_WORKING_DIR }}'
+    deps:
+      - go-cli
+    cmds:
+      - brew install goreleaser/tap/goreleaser
+    status:
+      - goreleaser --version
+
+  gofumpt:
+    desc: gofumpt
+    deps:
+      - go-cli
+    cmds:
+      - go get -u mvdan.cc/gofumpt
+    status:
+      - gofumpt --version
+
+  setup:
+    desc: Set up the dev environment for local (on-workstation) use
+    dir: '{{ .USER_WORKING_DIR }}'
+    deps:
+      - goreleaser
+      - gofumpt
+
+  test:
+    desc: Run the tests (README instructions)
+    cmds:
+      - go test
+
+  clean:
+    desc: Clean
+    cmds:
+      - rm -rf ./vendor
+
+  build:
+    desc: Build
+    dir: '{{ .USER_WORKING_DIR }}'
+    deps:
+      - setup
+      - vendor
+      - fix
+    cmds:
+      - go build .
+
+  fix:
+    desc: auto-format/fix
+    cmds:
+      - gofumpt -w ./**/*.go
+
+  vendor:
+    desc: vendor
+    cmds:
+      - go mod vendor
+
+  install:
+    desc: Install
+    deps:
+      - build
+    cmds:
+      - cp -f ./mkbranch ~/go/bin/mkbranch
+
+  archetype-cli:
+    desc: install archetype cli
+    internal: true
+    cmds:
+      - go install github.com/rantav/go-archetype@latest
+    status:
+      - go-archetype --help
+
+  archetype-run:
+    desc: make a new project
+    cmds:
+      - go-archetype transform --transformations=_dev/transformations.yml --source=. --destination=../newcopy
+    deps:
+      - archetype-cli
+
+  archetype-testing:
+    desc: test creating a project
+    cmds:
+      - rm -rf tmp
+      - go-archetype transform --transformations=_dev/transformations.yml --source=. --destination=tmp -- --name bob --bin bob --author bob --owner bob --githubname bob --githubproject bob
+    deps:
+      - archetype-cli

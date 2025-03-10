@@ -19,6 +19,7 @@ type RepoLike interface {
 	Fetch() error
 	Pull() error
 	SetBranch(value string) error
+	SetBranchFromRef(value string) error
 	ReadBranchFromGit() (string, error)
 	InitSubmodules() error
 	InitSubmodulesLazy(subdirPaths []pathlib.Path) error
@@ -88,6 +89,18 @@ func (r *RepoBase) SetBranch(value string) error {
 	_, _, err := fancyrun.FancyRun(fmt.Sprintf("git switch -c %s --discard-changes --recurse-submodules", value), r.Root, false)
 	if err != nil {
 		_, _, err = fancyrun.FancyRun(fmt.Sprintf("git switch %s --discard-changes --recurse-submodules", value), r.Root, true)
+		if err != nil {
+			logrus.Fatal("Unable to switch branches")
+		}
+	}
+	r.Branch = value
+	return nil
+}
+
+func (r *RepoBase) SetBranchFromRef(value string, ref string) error {
+	_, _, err := fancyrun.FancyRun(fmt.Sprintf("git switch -c %s %s --discard-changes --recurse-submodules", value, ref), r.Root, false)
+	if err != nil {
+		_, _, err = fancyrun.FancyRun(fmt.Sprintf("git switch %s %s --discard-changes --recurse-submodules", value, ref), r.Root, true)
 		if err != nil {
 			logrus.Fatal("Unable to switch branches")
 		}

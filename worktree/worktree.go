@@ -3,12 +3,13 @@ package worktree
 import (
 	"errors"
 	"fmt"
+	"os"
+
 	"github.com/sirupsen/logrus"
 	"github.com/smurfless1/fancyrun"
 	git "github.com/smurfless1/gitlike"
 	"github.com/smurfless1/gitlike/repo"
 	"github.com/smurfless1/pathlib"
-	"os"
 )
 
 type Worktree struct {
@@ -79,7 +80,7 @@ func (w Worktree) Mkdir() error {
 	}
 	parent, _ := w.Base.Root.Parent()
 	if !parent.Exists() {
-		err := parent.MkDir(os.FileMode(int(0755)), true)
+		err := parent.MkDir(os.FileMode(int(0o755)), true)
 		if err != nil {
 			return err
 		}
